@@ -97,7 +97,6 @@ public class LevelGenerator : MonoBehaviour
     }
 
 
-
     private void createOutsideCorner(float xPos, float yPos, int rotation)
     {
         Instantiate(outsideCorner, new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, rotation));
@@ -131,21 +130,28 @@ public class LevelGenerator : MonoBehaviour
     private int findRotation(int i, int j)
     {
         int rotation = 0;
+        //outside walls
         if (!isHorizontalEdge(i, j) && levelMap[i, j] == 2 && (levelMap[i + 1, j] == 2 || levelMap[i - 1, j] == 2))
         {
             rotation = 90;
         }
+        //T Juntion
         else if (levelMap[i, j] == 7 && i > 0)
         {
             rotation = 180;
         }else if (!isEdge(i, j))
-        {
+        {   //Inside Walls
             if (levelMap[i, j] == 4)
             {
                 if (levelMap[i, j-1] == 0 || levelMap[i, j + 1] == 0 || levelMap[i, j - 1] == 5 || levelMap[i, j + 1] == 5)
                 {
                     rotation = 90;
                 }
+                if ((levelMap[i, j-1] == 0 || levelMap[i, j + 1] == 0) && levelMap[i+ 1, j] == 0)
+                {
+                    rotation += 90;
+                }
+            //Inside Corners
             }else if (levelMap[i, j] == 3)
             {
                 if (levelMap[i-1, j] == 4 || levelMap[i - 1, j] == 3)
@@ -176,16 +182,98 @@ public class LevelGenerator : MonoBehaviour
                         rotation += 270;
                     }
                 }
+            //Outside corners
+            }else if(levelMap[i, j] == 1)
+            {
+                if (j < 6)
+                {
+                    rotation += 180;
+                    if (levelMap[i-1, j] == 0 || levelMap[i - 1, j] == 5)
+                    {
+                        rotation += 90;
+                    }
+                }else if (levelMap[i + 1, j] == 0 || levelMap[i + 1, j] == 5)
+                {
+                    rotation += 90;
+                }
             }
 
+        }else if (isEdge(i, j))
+        {   
+            //outside corners on the edges of the array
+            if (levelMap[i, j] == 1)
+            {
+                if (i == 14 || j == 13)
+                {
+                    rotation += 90;
+                    if (j == 13)
+                    {
+                        rotation += 90;
+                        if (i < 7)
+                        {
+                            rotation += 90;
+                        }
+                    }
+                }
+                if (i == 9 && j == 0)
+                {
+                    rotation += 90;
+                }
+            }
+            //inside walls on the edges of the array
+            if (levelMap[i, j] == 4)
+            {
+                rotation += 90;
+                if (i > 0 && i < 14)
+                {
+                    if (levelMap[i+1, j] == 5 || levelMap[i - 1, j] == 5)
+                    {
+                        rotation += 90;
+                    }
+                }
+            //inside corners on the edges of the array    
+            }else if(levelMap[i, j] == 3)
+            {
+                rotation += 90;
+                if (j == 0)
+                {
+                    rotation += 90;
+                }
+                if (i == 7)
+                {
+                    rotation += 180;
+                    if (levelMap[0,0] == 0)
+                    {
+                        rotation += 90;
+                        if (j > 0)
+                        {
+                            rotation += 180;
+                        }
+                    }
+                }
+                if (i == 4 && levelMap[i+1, j] == 4)
+                {
+                    rotation += 90;
+                    if (j > 0)
+                    {
+                        rotation += 180;
+                    }
+                }
+                if (i == 10 && levelMap[i + 1, j] == 4)
+                {
+                    rotation += 90;
+                    if (j > 0)
+                    {
+                        rotation += 180;
+                    }
+                }
+            }
+
+
         }
-        
-        
-
-
-
         return rotation;
     }
+
 
     private bool isEdge(int i, int j)
     {
@@ -205,14 +293,6 @@ public class LevelGenerator : MonoBehaviour
         return false;
     }
 
-    private bool isVerticalEdge(int i, int j)
-    {
-        if ((j == 0 || j == 13) && !isHorizontalEdge(i, j))
-        {
-            return true;
-        }
-        return false;
-    }
 
     private void flipArray(int mode)
     {
