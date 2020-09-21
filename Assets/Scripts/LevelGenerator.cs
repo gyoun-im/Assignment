@@ -32,25 +32,29 @@ public class LevelGenerator : MonoBehaviour
         };
 
 
-    // Start is called before the first frame update
     void Start()
     {
+        //instantiate first quarter
         createLevelQuarter(levelMap, -30.0f, 28.0f);
+
+        //mirror the first quarter and instantiate
         flipArray(1);
         createLevelQuarter(levelMap, -3.4f, 28.0f);
+
+        //mirror the second quarter, remove the top layer and instantiate
         flipArray(2);
         for (int i = 0; i < 14; ++ i)
         {
             levelMap[0, i] = 0;
         }
         createLevelQuarter(levelMap, -3.4f, 1.4f);
+
+        //mirror the third quarter and instantiate
         flipArray(1);
         createLevelQuarter(levelMap, -30.0f, 1.4f);
-
-
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         
@@ -67,34 +71,22 @@ public class LevelGenerator : MonoBehaviour
                 if (levelMap[i, j] == 1)
                 {
                     createOutsideCorner(xPos, yPos, findRotation(i, j));
-                }
-
-                if (levelMap[i, j] == 2)
+                }else if (levelMap[i, j] == 2)
                 {
                     createOutsideWall(xPos, yPos, findRotation(i, j));
-                }
-
-                if (levelMap[i, j] == 3)
+                }else if (levelMap[i, j] == 3)
                 {
                     createInsideCorner(xPos, yPos, findRotation(i, j));
-                }
-
-                if (levelMap[i, j] == 4)
+                }else if (levelMap[i, j] == 4)
                 {
                     createInsideWall(xPos, yPos, findRotation(i, j));
-                }
-
-                if (levelMap[i, j] == 5)
+                }else if (levelMap[i, j] == 5)
                 {
                     createNormalPellet(xPos, yPos, 0);
-                }
-
-                if (levelMap[i, j] == 6)
+                }else if (levelMap[i, j] == 6)
                 {
                     createPowerPellet(xPos, yPos, 0);
-                }
-
-                if (levelMap[i, j] == 7)
+                }else if (levelMap[i, j] == 7)
                 {
                     createTJunction(xPos, yPos, findRotation(i, j));
                 }
@@ -110,42 +102,98 @@ public class LevelGenerator : MonoBehaviour
     {
         Instantiate(outsideCorner, new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, rotation));
     }
-
     private void createOutsideWall(float xPos, float yPos, int rotation)
     {
         Instantiate(outsideWall, new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, rotation));
     }
-
     private void createInsideCorner(float xPos, float yPos, int rotation)
     {
         Instantiate(insideCorner, new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, rotation));
     }
-
     private void createInsideWall(float xPos, float yPos, int rotation)
     {
         Instantiate(insideWall, new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, rotation));
     }
-
     private void createTJunction(float xPos, float yPos, int rotation)
     {
         Instantiate(tJunction, new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, rotation));
     }
-
     private void createNormalPellet(float xPos, float yPos, int rotation)
     {
         Instantiate(normalPellet, new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, rotation));
     }
-
     private void createPowerPellet(float xPos, float yPos, int rotation)
     {
         Instantiate(powerPellet, new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, rotation));
     }
 
+
     private int findRotation(int i, int j)
     {
         int rotation = 0;
+        if (!isHorizontalEdge(i, j) && levelMap[i, j] == 2 && (levelMap[i + 1, j] == 2 || levelMap[i - 1, j] == 2))
+        {
+            rotation = 90;
+        }
+        else if (levelMap[i, j] == 7 && i > 0)
+        {
+            rotation = 180;
+        }else if (!isEdge(i, j))
+        {
+            if (levelMap[i, j] == 4)
+            {
+                if (levelMap[i, j-1] == 0 || levelMap[i, j + 1] == 0 || levelMap[i, j - 1] == 5 || levelMap[i, j + 1] == 5)
+                {
+                    rotation = 90;
+                }
+            }else if (levelMap[i, j] == 3)
+            {
+                if (levelMap[i-1, j] == 4 || levelMap[i - 1, j] == 3)
+                {
+                    rotation += 90;
+                }
+                if (levelMap[i, j-1] == 4 || levelMap[i, j - 1] == 3)
+                {
+                    rotation += 90;
+                }
+                if ((levelMap[i, j-1] == 4 || levelMap[i, j - 1] == 3) && (levelMap[i+1, j] == 4 || levelMap[i + 1, j] == 3))
+                {
+                    rotation += 180;
+                }
+                if ((levelMap[i-1, j] == 3 || levelMap[i - 1, j] == 4) && levelMap[i, j+1] == 4 && levelMap[i, j - 1] == 4)
+                {
+                    rotation += 180;
+                    if (levelMap[i+1, j] == 4)
+                    {
+                        rotation += 90;
+                        if (j > 7)
+                        {
+                            rotation += 90;
+                        }
+                    }
+                    if (levelMap[i - 1, j] == 4 && j > 7)
+                    {
+                        rotation += 270;
+                    }
+                }
+            }
+
+        }
         
+        
+
+
+
         return rotation;
+    }
+
+    private bool isEdge(int i, int j)
+    {
+        if (i == 0 || i == 14 || j == 0 || j == 13)
+        {
+            return true;
+        }
+        return false;
     }
 
     private bool isHorizontalEdge(int i, int j)
@@ -173,7 +221,7 @@ public class LevelGenerator : MonoBehaviour
             for (int i = 0; i < 15; ++i)
             {
                 int rowLength = levelMap.GetLength(1) -1;
-                for (int j = 0; j < 6; ++j)
+                for (int j = 0; j < 7; ++j)
                 {
                     swapYValue(i, j, rowLength);
                     --rowLength;
