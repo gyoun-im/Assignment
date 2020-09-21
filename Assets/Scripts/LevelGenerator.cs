@@ -37,11 +37,11 @@ public class LevelGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        xPos = -10;
-        
+        yPos = 10;
+
         for (int i = 0; i < 15; ++i)
         {
-            yPos = 10;
+            xPos = -10;
             for (int j = 0; j < 14; ++j)
             {
                 if (leveMap[i, j] == 1)
@@ -78,9 +78,9 @@ public class LevelGenerator : MonoBehaviour
                 {
                     createTJunction(xPos, yPos, 0);
                 }
-                yPos -= 2;
+                xPos += 2;
             }
-            xPos +=  2;
+            yPos -= 2;
         }
     }
 
